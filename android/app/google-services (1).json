@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "892957828820",
+    "firebase_url": "https://gw-parashar-ai-based-default-rtdb.firebaseio.com",
+    "project_id": "gw-parashar-ai-based",
+    "storage_bucket": "gw-parashar-ai-based.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892957828820:android:0226ec24f3e2e89be0bd41",
+        "android_client_info": {
+          "package_name": "com.agritech.krishi_parashara_ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "892957828820-j9t50usa82su1qhgv9g8u60o4bitf8st.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.agritech.krishi_parashara_ai",
+            "certificate_hash": "0cfdf740b00730a5b08dbf7ab3404148a6299feb"
+          }
+        },
+        {
+          "client_id": "892957828820-5mvu9vr6intqghv8ftbdoub4i3ff5mfc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDv2qxVJS2Qu9npXKjhCO4zir-o_2iHdps"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "892957828820-5mvu9vr6intqghv8ftbdoub4i3ff5mfc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

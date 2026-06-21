@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>कृषि पराशर AI - प्रशासक पॅनेल</title>
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --primary-green: #1E5631;
+      --primary-light: #2d7a46;
+      --accent-gold: #E5A93B;
+      --danger-red: #c84b31;
+      --bg-dark: #121813;
+      --card-dark: #1c241e;
+      --text-light: #f4f6f4;
+      --text-muted: #8fa093;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --glass-bg: rgba(28, 36, 30, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+    }
+
+    /* Container */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background-color: var(--card-dark);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      flex-shrink: 0;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary-green), var(--accent-gold));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(30, 86, 49, 0.3);
+    }
+
+    .brand-title {
+      font-size: 20px;
+      background: linear-gradient(to right, #ffffff, var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-grow: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: white;
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-item.active {
+      background-color: var(--primary-green);
+      box-shadow: 0 4px 12px rgba(30, 86, 49, 0.2);
+    }
+
+    .nav-item i {
+      font-size: 18px;
+    }
+
+    .user-profile-section {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .profile-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      background-color: var(--primary-green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .avatar-text {
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--danger-red);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: rgba(200, 75, 49, 0.1);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .header-bar {
+      height: 80px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      background-color: rgba(18, 24, 19, 0.5);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .page-title {
+      font-size: 24px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-secondary-outline {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-light);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary-outline:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: var(--text-muted);
+    }
+
+    /* Content Wrapper */
+    .content-wrapper {
+      padding: 40px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Grid Layouts */
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--card-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-green);
+      background-color: rgba(255, 255, 255, 0.04);
+      box-shadow: 0 0 0 3px rgba(30, 86, 49, 0.25);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background-color: var(--primary-green);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(30, 86, 49, 0.3);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-light);
+      box-shadow: 0 6px 16px rgba(30, 86, 49, 0.4);
+    }
+
+    /* Dynamic Options for Polls */
+    .option-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .btn-remove-option {
+      background: none;
+      border: 1px solid rgba(200, 75, 49, 0.3);
+      color: var(--danger-red);
+      width: 44px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .btn-remove-option:hover {
+      background-color: rgba(200, 75, 49, 0.1);
+    }
+
+    .btn-add-option {
+      background: none;
+      border: 1px dashed var(--accent-gold);
+      color: var(--accent-gold);
+      padding: 10px;
+      border-radius: 10px;
+      width: 100%;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+
+    .btn-add-option:hover {
+      background-color: rgba(229, 169, 59, 0.05);
+    }
+
+    /* List Display Area */
+    .list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .list-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .list-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .list-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+    }
+
+    /* Video Card */
+    .video-item {
+      display: flex;
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .video-thumbnail {
+      width: 160px;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .video-details {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-grow: 1;
+      padding-right: 50px;
+    }
+
+    .video-item-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 6px;
+    }
+
+    .video-item-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-item-id {
+      font-size: 10px;
+      color: var(--accent-gold);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .btn-delete {
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--danger-red);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: background 0.3s;
+    }
+
+    .btn-delete:hover {
+      background-color: rgba(200, 75, 49, 0.1);
+    }
+
+    /* Poll Card */
+    .poll-item {
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+    }
+
+    .poll-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-right: 40px;
+    }
+
+    .poll-id {
+      font-size: 11px;
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .poll-votes-total {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .poll-question {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: white;
+    }
+
+    .poll-option-result {
+      margin-bottom: 10px;
+    }
+
+    .poll-option-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background-color: var(--accent-gold);
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    /* Config Panel Drawer */
+    .config-drawer {
+      position: fixed;
+      top: 0;
+      right: -350px;
+      width: 350px;
+      height: 100vh;
+      background-color: var(--card-dark);
+      border-left: 1px solid var(--border-color);
+      z-index: 100;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .config-drawer.open {
+      right: 0;
+    }
+
+    .config-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      color: var(--accent-gold);
+    }
+
+    .close-config-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 99;
+      display: none;
+    }
+
+    .modal-backdrop.active {
+      display: block;
+    }
+
+    /* Login Screen Overlay */
+    .auth-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--bg-dark);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background-color: var(--card-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      text-align: center;
+    }
+
+    .auth-header {
+      margin-bottom: 30px;
+    }
+
+    .auth-logo {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--primary-green), var(--accent-gold));
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: white;
+      margin: 0 auto 16px;
+      box-shadow: 0 6px 20px rgba(30, 86, 49, 0.3);
+    }
+
+    .auth-error {
+      background-color: rgba(200, 75, 49, 0.1);
+      border: 1px solid var(--danger-red);
+      color: #ff6b6b;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      text-align: left;
+    }
+
+    /* Notification Alerts */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: var(--primary-green);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 10px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-error {
+      background-color: var(--danger-red);
+    }
+
+    /* Tabs */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 12px;
+      color: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Auth Screen Overlay -->
+  <div id="authOverlay" class="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo"><i class="fa-solid fa-leaf"></i></div>
+        <h2>कृषि पराशर AI</h2>
+        <p style="color: var(--text-muted); margin-top: 6px;">प्रशासक लॉगिन (Admin Sign In)</p>
+      </div>
+      
+      <div id="authError" class="auth-error"></div>
+      
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label">प्रशासक ईमेल आयडी / युझरनेम (Email ID / Username)</label>
+          <input type="text" id="loginEmail" class="form-control" placeholder="admin@domain.com" required>
+        </div>
+        <div class="form-group" style="text-align: left; margin-bottom: 24px;">
+          <label class="form-label">पासवर्ड (Password)</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn-primary" id="loginBtn">
+          <span>प्रवेश करा</span> <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+      
+      <button onclick="toggleConfigDrawer(true)" class="btn-secondary-outline" style="width: 100%; margin-top: 16px; justify-content: center;">
+        <i class="fa-solid fa-gears"></i> <span>डेटाबेस सेटअप बदला</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main App Layout -->
+  <div class="app-container">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo"><i class="fa-solid fa-leaf"></i></div>
+        <div class="brand-title">कृषि पराशर AI</div>
+      </div>
+      
+      <nav class="nav-menu">
+        <div class="nav-item active" id="navVideos" onclick="switchTab('videos')">
+          <i class="fa-solid fa-video"></i>
+          <span>व्हिडिओ मार्गदर्शिका</span>
+        </div>
+        <div class="nav-item" id="navPolls" onclick="switchTab('polls')">
+          <i class="fa-solid fa-square-poll-vertical"></i>
+          <span>शेतकरी समुदाय मंच</span>
+        </div>
+        <div class="nav-item" id="navDiseases" onclick="switchTab('diseases')">
+          <i class="fa-solid fa-bug"></i>
+          <span>पीक रोग सल्ला</span>
+        </div>
+        <div class="nav-item" id="navTools" onclick="switchTab('tools')">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+          <span>कृषी साधने</span>
+        </div>
+      </nav>
+      
+      <div class="user-profile-section">
+        <div class="profile-info">
+          <div class="avatar" id="avatarLetter">A</div>
+          <div style="overflow: hidden;">
+            <div id="userEmailText" class="avatar-text" style="font-weight: 600; color: white;">Admin</div>
+            <div style="font-size: 11px; color: var(--accent-gold);">प्रशासक (Admin)</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="handleLogout()" title="बाहेर पडा">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Header Bar -->
+      <header class="header-bar">
+        <h2 class="page-title" id="pageTitle">व्हिडिओ व्यवस्थापन</h2>
+        <div class="header-actions">
+          <button onclick="toggleConfigDrawer(true)" class="btn-secondary-outline">
+            <i class="fa-solid fa-gears"></i>
+            <span>डेटाबेस जोडणी</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content wrapper -->
+      <div class="content-wrapper">
+        
+        <!-- Tab 1: Video Management Content -->
+        <div id="tabVideos" class="tab-content active">
+          <div class="admin-grid">
+            
+            <!-- Video Form Card -->
+            <div class="card">
+              <h3 class="card-title"><i class="fa-solid fa-video-camera"></i> नवीन व्हिडिओ जोडा</h3>
+              
+              <form id="videoForm" onsubmit="saveVideo(event)">
+                <div class="form-group">
+                  <label class="form-label">व्हिडिओ शीर्षक (Video Title)</label>
+                  <input type="text" id="videoTitle" class="form-control" placeholder="उदा. पिकांवर निंबोळी अर्काची फवारणी कशी करावी..." required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">युट्यूब व्हिडिओ लिंक किंवा आयडी (YouTube URL / ID)</label>
+                  <input type="text" id="videoUrl" class="form-control" placeholder="उदा. https://www.youtube.com/watch?v=..." required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">पिकाची श्रेणी (Crop Category)</label>
+                  <select id="videoCrop" class="form-control" style="background-color: var(--card-dark); color: white;" required>
+                    <option value="सर्व पिके" selected>सर्व पिके</option>
+                    <option value="भात (तांदूळ)">भात (तांदूळ)</option>
+                    <option value="गहू">गहू</option>
+                    <option value="कापूस">कापूस</option>
+                    <option value="सोयाबीन">सोयाबीन</option>
+                    <option value="ऊस">ऊस</option>
+                    <option value="इतर पिके">इतर पिके</option>
+                  </select>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 24px;">
+                  <label class="form-label">वर्णन (Description)</label>
+                  <textarea id="videoDesc" class="form-control" placeholder="व्हिडिओबाबत थोडक्यात माहिती..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                  <i class="fa-solid fa-save"></i> <span>व्हिडिओ प्रसिद्ध करा</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Video List Display -->
+            <div class="card">
+              <h3 class="card-title"><i class="fa-solid fa-list-check"></i> उपलब्ध मार्गदर्शिका व्हिडिओ</h3>
+              <div id="videoList" class="list-container">
+                <!-- Loaded dynamically -->
+                <div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> लोड होत आहे...</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab 2: Poll Management Content -->
+        <div id="tabPolls" class="tab-content">
+          <div class="admin-grid">
+            
+            <!-- Poll Form Card -->
+            <div class="card">
+              <h3 class="card-title"><i class="fa-solid fa-poll"></i> नवीन मतदान (Poll) सुरू करा</h3>
+              
+              <form id="pollForm" onsubmit="savePoll(event)">
+                <div class="form-group">
+                  <label class="form-label">तुमचा प्रश्न विचारा (Poll Question)</label>
+                  <input type="text" id="pollQuestion" class="form-control" placeholder="उदा. आपण या वर्षी सेंद्रिय खतांचा वापर करणार का?" required>
+                </div>
+                
+                <div class="form-group" id="pollOptionsContainer">
+                  <label class="form-label">मतदानाचे पर्याय (Options)</label>
+                  
+                  <div class="option-row">
+                    <input type="text" class="form-control poll-option-input" placeholder="१ ला पर्याय" required>
+                    <div style="width: 44px;"></div>
+                  </div>
+                  <div class="option-row">
+                    <input type="text" class="form-control poll-option-input" placeholder="२ रा पर्याय" required>
+                    <div style="width: 44px;"></div>
+                  </div>
+                </div>
+                
+                <button type="button" onclick="addPollOptionField()" class="btn-add-option">
+                  <i class="fa-solid fa-plus"></i> <span>नवीन पर्याय जोडा</span>
+                </button>
+                
+                <button type="submit" class="btn-primary">
+                  <i class="fa-solid fa-bullhorn"></i> <span>नवीन मतदान सुरू करा</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Poll List Display -->
+            <div class="card">
+              <h3 class="card-title"><i class="fa-solid fa-square-poll-horizontal"></i> सक्रिय मतदाने (Polls)</h3>
+              <div id="pollList" class="list-container">
+                <!-- Loaded dynamically -->
+                <div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> लोड होत आहे...</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab 3: Disease Management Content -->
+        <div id="tabDiseases" class="tab-content">
+          <div class="admin-grid">
+            
+            <!-- Disease Form Card -->
+            <div class="card">
+              <h3 class="card-title"><i class="fa-solid fa-bug"></i> नवीन पीक रोग जोडा</h3>
+              
+              <form id="diseaseForm" onsubmit="saveDisease(event)">
+                <div class="form-group">
+                  <label class="form-label">रोगाचे नाव (Disease Name)</label>
+                  <input type="text" id="diseaseName" class="form-control" placeholder="उदा. करपा रोग (Blast)" required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">संबंधित पीक (Associated Crop)</label>
+                  <select id="diseaseCrop" class="form-control" style="background-color: var(--card-dark); color: white;" required>
+                    <option value="भात (तांदूळ)">भात (तांदूळ)</option>
+                    <option value="गहू">गहू</option>
+                    <option value="कापूस">कापूस</option>
+                    <option value="सोयाबीन">सोयाबीन</option>
+                    <option value="ऊस">ऊस</option>
+                    <option value="इतर पिके">इतर पिके</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">रोगाची लक्षणे (Symptoms)</label>
+                  <textarea id="diseaseSymptoms" class="form-control" placeholder="पानांवर डोळ्याच्या आकाराचे ठिपके दिसणे..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">सेंद्रिय उपाय (Organic Remedy)</label>
+                  <textarea id="diseaseRemedy" class="form-control" placeholder="५% निंबोळी अर्क किंवा आंबट ताकाची फवारणी..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">रासायनिक उपाय (Chemical Remedy)</label>
+                  <textarea id="diseaseChemicalRemedy" class="form-control" placeholder="उदा. कार्बेन्डाझिम ५०% WP किंवा कॉपर ऑक्सीक्लोराईड..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">औषध बनवण्याची पद्धत (Recipe)</label>
+                  <textarea id="diseaseRecipe" class="form-control" placeholder="१. ५ किलो निंबोळी पावडर १० लिटर पाण्यात भिजवून ठेवा..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">वैदिक श्लोक / संदर्भ (Vedic Quote - ऐच्छिक)</label>
+                  <input type="text" id="diseaseVedicQuote" class="form-control" placeholder="उदा. शालिधान्ये तु कीटकाः...">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">फोटो लिंक (Photo URL)</label>
+                  <input type="url" id="diseasePhotoUrl" class="form-control" placeholder="उदा. https://images.unsplash.com/..." required>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                  <i class="fa-solid fa-save"></i> <span>रोग जतन करा</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Disease List Display -->
+            <div class="card">
+              <h3 class="card-title"><i class="fa-solid fa-list-check"></i> उपलब्ध रोग सल्ला रेकॉर्ड्स</h3>
+              <div id="diseaseList" class="list-container">
+                <div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> लोड होत आहे...</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab 4: Tools Management Content -->
+        <div id="tabTools" class="tab-content">
+          <div class="admin-grid">
+            
+            <!-- Tool Form Card -->
+            <div class="card">
+              <h3 class="card-title"><i class="fa-solid fa-screwdriver-wrench"></i> नवीन कृषी यंत्र / साधन जोडा</h3>
+              
+              <form id="toolForm" onsubmit="saveTool(event)">
+                <div class="form-group">
+                  <label class="form-label">साधनाचे नाव (Tool Name)</label>
+                  <input type="text" id="toolName" class="form-control" placeholder="उदा. सौर उर्जेवर चालणारा पंप" required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">किंमत रुपये (Price in ₹)</label>
+                  <input type="number" step="0.01" id="toolPrice" class="form-control" placeholder="उदा. ४९९.००" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">साधन श्रेणी (Category)</label>
+                  <select id="toolCategory" class="form-control" style="background-color: var(--card-dark); color: white;" required>
+                    <option value="Hand Tools">Hand Tools</option>
+                    <option value="Pumps">Pumps</option>
+                    <option value="Seeds">Seeds</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">फोटो लिंक (Photo URL)</label>
+                  <input type="url" id="toolPhotoUrl" class="form-control" placeholder="उदा. https://images.unsplash.com/..." required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">खरेदी लिंक (Purchase URL - ऐच्छिक)</label>
+                  <input type="url" id="toolPurchaseUrl" class="form-control" placeholder="उदा. https://amazon.in/...">
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                  <i class="fa-solid fa-save"></i> <span>साधन जतन करा</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Tool List Display -->
+            <div class="card">
+              <h3 class="card-title"><i class="fa-solid fa-list-check"></i> उपलब्ध कृषी साधने</h3>
+              <div id="toolList" class="list-container">
+                <div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> लोड होत आहे...</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Config Panel Drawer -->
+  <div id="configDrawer" class="config-drawer">
+    <div class="config-drawer-header">
+      <h3><i class="fa-solid fa-gears"></i> डेटाबेस जोडणी</h3>
+      <button class="close-config-btn" onclick="toggleConfigDrawer(false)">&times;</button>
+    </div>
+    
+    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">
+      तुमचा डेटाबेस जोडण्यासाठी खालील क्रेडेंशियल्स प्रविष्ट करा. हे क्रेडेंशियल्स तुमच्या स्थानिक ब्राउझरमध्ये (Local Storage) सुरक्षित साठवले जातात.
+    </p>
+
+    <div class="form-group">
+      <label class="form-label">API Key</label>
+      <input type="text" id="configApiKey" class="form-control">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Auth Domain</label>
+      <input type="text" id="configAuthDomain" class="form-control">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Database URL</label>
+      <input type="text" id="configDbUrl" class="form-control">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Project ID</label>
+      <input type="text" id="configProjectId" class="form-control">
+    </div>
+    <div class="form-group" style="margin-bottom: 24px;">
+      <label class="form-label">App ID</label>
+      <input type="text" id="configAppId" class="form-control">
+    </div>
+
+    <button onclick="saveConfig()" class="btn-primary">
+      <i class="fa-solid fa-circle-check"></i> <span>सेटिंग्ज जतन करा</span>
+    </button>
+  </div>
+
+  <!-- Modal Backdrop -->
+  <div id="modalBackdrop" class="modal-backdrop" onclick="toggleConfigDrawer(false)"></div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast">
+    <i id="toastIcon" class="fa-solid fa-circle-check"></i>
+    <span id="toastMessage">यशस्वी झाले!</span>
+  </div>
+
+  <script>
+    // Default config values (based on secrets.dart and firebase_options.dart)
+    const DEFAULT_CONFIG = {
+      apiKey: "YOUR_WEB_API_KEY",
+      authDomain: "krishi-parashara-ai.firebaseapp.com",
+      databaseURL: "https://gw-parashar-ai-based-default-rtdb.firebaseio.com",
+      projectId: "krishi-parashara-ai",
+      appId: "YOUR_WEB_APP_ID"
+    };
+
+    let firebaseConfig = {};
+    let dbActiveInstance = null;
+
+    // Load configuration on start
+    function initConfig() {
+      const stored = localStorage.getItem('krishi_firebase_config');
+      if (stored) {
+        try {
+          firebaseConfig = JSON.parse(stored);
+        } catch(e) {
+          firebaseConfig = { ...DEFAULT_CONFIG };
+        }
+      } else {
+        firebaseConfig = { ...DEFAULT_CONFIG };
+      }
+
+      // Fill config forms
+      document.getElementById('configApiKey').value = firebaseConfig.apiKey || '';
+      document.getElementById('configAuthDomain').value = firebaseConfig.authDomain || '';
+      document.getElementById('configDbUrl').value = firebaseConfig.databaseURL || '';
+      document.getElementById('configProjectId').value = firebaseConfig.projectId || '';
+      document.getElementById('configAppId').value = firebaseConfig.appId || '';
+    }
+
+    // Initialize Firebase
+    function initFirebase() {
+      // If Firebase already initialized, delete app first
+      if (firebase.apps.length > 0) {
+        firebase.app().delete().then(setupNewFirebaseInstance);
+      } else {
+        setupNewFirebaseInstance();
+      }
+    }
+
+    function setupNewFirebaseInstance() {
+      try {
+        firebase.initializeApp(firebaseConfig);
+        dbActiveInstance = firebase.database();
+        showToast("डेटाबेस जोडणी यशस्वी झाली!");
+        
+        // Listen to Auth State
+        firebase.auth().onAuthStateChanged((user) => {
+          const isHardcodedLoggedIn = localStorage.getItem('krishi_admin_hardcoded_login') === 'true';
+          
+          if (user || isHardcodedLoggedIn) {
+            const savedEmail = localStorage.getItem('krishi_admin_hardcoded_email') || 'vasant.1982@gmail.com';
+            const email = user ? user.email : savedEmail;
+            const lowerEmail = user ? user.email.toLowerCase() : savedEmail.toLowerCase();
+            if (user && lowerEmail !== 'vasant.1982patil@gmail.com' && lowerEmail !== 'vasant.1982@gmail.com') {
+              firebase.auth().signOut();
+              if (!isHardcodedLoggedIn) return;
+            }
+            // Logged In
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('userEmailText').innerText = email;
+            document.getElementById('avatarLetter').innerText = email.charAt(0).toUpperCase();
+            
+            // Start listening to databases
+            listenToVideos();
+            listenToPolls();
+          } else {
+            // Logged Out
+            document.getElementById('authOverlay').style.display = 'flex';
+          }
+        });
+      } catch (error) {
+        showToast("डेटाबेस जोडणीत त्रुटी: " + error.message, true);
+        document.getElementById('authOverlay').style.display = 'flex';
+      }
+    }
+
+    // Save and apply new configurations
+    function saveConfig() {
+      firebaseConfig = {
+        apiKey: document.getElementById('configApiKey').value.trim(),
+        authDomain: document.getElementById('configAuthDomain').value.trim(),
+        databaseURL: document.getElementById('configDbUrl').value.trim(),
+        projectId: document.getElementById('configProjectId').value.trim(),
+        appId: document.getElementById('configAppId').value.trim()
+      };
+
+      localStorage.setItem('krishi_firebase_config', JSON.stringify(firebaseConfig));
+      toggleConfigDrawer(false);
+      initFirebase();
+    }
+
+    // Toggle Config Panel Drawer
+    function toggleConfigDrawer(show) {
+      const drawer = document.getElementById('configDrawer');
+      const backdrop = document.getElementById('modalBackdrop');
+      if (show) {
+        drawer.classList.add('open');
+        backdrop.classList.add('active');
+      } else {
+        drawer.classList.remove('open');
+        backdrop.classList.remove('active');
+      }
+    }
+
+    // Switch Tabs
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      
+      if (tab === 'videos') {
+        document.getElementById('tabVideos').classList.add('active');
+        document.getElementById('navVideos').classList.add('active');
+        document.getElementById('pageTitle').innerText = 'व्हिडिओ व्यवस्थापन';
+        listenToVideos();
+      } else if (tab === 'polls') {
+        document.getElementById('tabPolls').classList.add('active');
+        document.getElementById('navPolls').classList.add('active');
+        document.getElementById('pageTitle').innerText = 'शेतकरी समुदाय मंच (Polls)';
+        listenToPolls();
+      } else if (tab === 'diseases') {
+        document.getElementById('tabDiseases').classList.add('active');
+        document.getElementById('navDiseases').classList.add('active');
+        document.getElementById('pageTitle').innerText = 'पीक रोग व्यवस्थापन';
+        listenToDiseases();
+      } else if (tab === 'tools') {
+        document.getElementById('tabTools').classList.add('active');
+        document.getElementById('navTools').classList.add('active');
+        document.getElementById('pageTitle').innerText = 'कृषी साधने व्यवस्थापन';
+        listenToTools();
+      }
+    }
+
+    // Show Notification Toast
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastIcon = document.getElementById('toastIcon');
+      const toastMessage = document.getElementById('toastMessage');
+
+      toastMessage.innerText = message;
+      if (isError) {
+        toast.classList.add('toast-error');
+        toastIcon.className = "fa-solid fa-triangle-exclamation";
+      } else {
+        toast.classList.remove('toast-error');
+        toastIcon.className = "fa-solid fa-circle-check";
+      }
+
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Login Handler
+    function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const errorDiv = document.getElementById('authError');
+      const loginBtn = document.getElementById('loginBtn');
+
+      errorDiv.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> लॉगिन होत आहे...';
+
+      // Hardcoded fallback bypass
+      const lowerInputEmail = email.toLowerCase();
+      const isHardcodedMatch = 
+        ((lowerInputEmail === 'vasant.1982patil@gmail.com' || lowerInputEmail === 'vasant.1982@gmail.com') && password === 'vishal patil') ||
+        (lowerInputEmail === 'ganesh@07' && password === 'ganesh@07') ||
+        (lowerInputEmail === 'shaury@d' && (password === 'shaury@D' || password === 'shaury@d'));
+
+      if (isHardcodedMatch) {
+        localStorage.setItem('krishi_admin_hardcoded_login', 'true');
+        localStorage.setItem('krishi_admin_hardcoded_email', email);
+        showToast("प्रशासक लॉगिन यशस्वी (हार्डकोडेड)!");
+        document.getElementById('authOverlay').style.display = 'none';
+        document.getElementById('userEmailText').innerText = email;
+        document.getElementById('avatarLetter').innerText = email.charAt(0).toUpperCase();
+        
+        // Asynchronously attempt Firebase Sign-In so authenticated database rules can apply
+        if (email.includes('@') && email.includes('.')) {
+          firebase.auth().signInWithEmailAndPassword(email, password).catch(err => {
+            console.warn("Firebase sign-in failed, running in hardcoded bypass mode:", err.message);
+          });
+        }
+
+        // Start listening to database references
+        listenToVideos();
+        listenToPolls();
+
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<span>प्रवेश करा</span> <i class="fa-solid fa-arrow-right"></i>';
+        return;
+      }
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          const lowerEmail = user.email.toLowerCase();
+          if (
+            lowerEmail !== 'vasant.1982patil@gmail.com' && 
+            lowerEmail !== 'vasant.1982@gmail.com' && 
+            lowerEmail !== 'ganesh@07' && 
+            lowerEmail !== 'shaury@d'
+          ) {
+            firebase.auth().signOut();
+            errorDiv.innerText = 'प्रशासक म्हणून प्रवेश करण्यासाठी तुम्हाला परवानगी नाही.';
+            errorDiv.style.display = 'block';
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<span>प्रवेश करा</span> <i class="fa-solid fa-arrow-right"></i>';
+          } else {
+            showToast("लॉगिन यशस्वी झाले!");
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<span>प्रवेश करा</span> <i class="fa-solid fa-arrow-right"></i>';
+          }
+        })
+        .catch((error) => {
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = '<span>प्रवेश करा</span> <i class="fa-solid fa-arrow-right"></i>';
+          errorDiv.innerText = getMarathiAuthError(error.code);
+          errorDiv.style.display = 'block';
+        });
+    }
+
+    function getMarathiAuthError(code) {
+      switch (code) {
+        case 'auth/user-not-found':
+          return 'या ईमेलवर कोणतेही खाते आढळले नाही.';
+        case 'auth/wrong-password':
+          return 'पासवर्ड चुकीचा आहे.';
+        case 'auth/invalid-email':
+          return 'ईमेल आयडी चुकीचा आहे.';
+        case 'auth/network-request-failed':
+          return 'इंटरनेट जोडणी तपासा.';
+        default:
+          return 'लॉगिन करण्यात त्रुटी आली. कृपया पुन्हा प्रयत्न करा.';
+      }
+    }
+
+    // Logout Handler
+    function handleLogout() {
+      localStorage.removeItem('krishi_admin_hardcoded_login');
+      localStorage.removeItem('krishi_admin_hardcoded_email');
+      firebase.auth().signOut().then(() => {
+        showToast("लॉगआउट यशस्वी!");
+      });
+    }
+
+    /* --- VIDEO MANAGEMENT --- */
+    function listenToVideos() {
+      if (!dbActiveInstance) return;
+      
+      const videoListDiv = document.getElementById('videoList');
+      dbActiveInstance.ref('youtube_tutorials').on('value', (snapshot) => {
+        if (!snapshot.exists()) {
+          videoListDiv.innerHTML = '<div class="empty-state"><i class="fa-solid fa-video-slash"></i><br>अद्याप कोणतेही व्हिडिओ मार्गदर्शन जोडलेले नाही.</div>';
+          return;
+        }
+
+        const data = snapshot.val();
+        let htmlContent = '';
+        
+        Object.keys(data).forEach((key) => {
+          const video = data[key];
+          const thumbUrl = `https://img.youtube.com/vi/${video.video_id}/hqdefault.jpg`;
+          
+          htmlContent += `
+            <div class="video-item">
+              <img class="video-thumbnail" src="${thumbUrl}" alt="Thumbnail">
+              <div class="video-details">
+                <div class="video-item-title">${video.title} <span class="badge" style="font-size: 11px; background-color: var(--primary-color); color: white; padding: 2px 8px; border-radius: 12px; margin-left: 8px;">${video.crop || 'सर्व पिके'}</span></div>
+                <div class="video-item-desc">${video.description || 'माहिती उपलब्ध नाही.'}</div>
+                <div class="video-item-id"><i class="fa-brands fa-youtube"></i> ID: ${video.video_id}</div>
+              </div>
+              <button class="btn-delete" onclick="deleteVideo('${key}')" title="व्हिडिओ डिलीट करा">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          `;
+        });
+        
+        videoListDiv.innerHTML = htmlContent;
+      }, (error) => {
+        videoListDiv.innerHTML = `<div class="empty-state" style="color: var(--danger-red);"><i class="fa-solid fa-circle-exclamation"></i><br>त्रुटी: ${error.message}</div>`;
+      });
+    }
+
+    function extractVideoId(url) {
+      url = url.trim();
+      if (url.length === 11) return url;
+
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/i;
+      const match = url.match(regExp);
+      if (match && match[2] && match[2].length === 11) {
+        return match[2];
+      }
+      return null;
+    }
+
+    function saveVideo(event) {
+      event.preventDefault();
+      const title = document.getElementById('videoTitle').value.trim();
+      const url = document.getElementById('videoUrl').value.trim();
+      const crop = document.getElementById('videoCrop').value;
+      const desc = document.getElementById('videoDesc').value.trim();
+      
+      const videoId = extractVideoId(url);
+      if (!videoId) {
+        showToast("कृपया योग्य युट्यूब व्हिडिओ लिंक प्रविष्ट करा.", true);
+        return;
+      }
+
+      if (!dbActiveInstance) return;
+
+      const id = Date.now().toString();
+      const videoData = {
+        id: id,
+        title: title,
+        video_id: videoId,
+        description: desc,
+        crop: crop
+      };
+
+      dbActiveInstance.ref(`youtube_tutorials/${id}`).set(videoData)
+        .then(() => {
+          showToast("व्हिडिओ यशस्वीरित्या जतन केला!");
+          document.getElementById('videoForm').reset();
+        })
+        .catch((err) => {
+          showToast("जतन करताना त्रुटी: " + err.message, true);
+        });
+    }
+
+    function deleteVideo(key) {
+      if (!confirm("आपण खात्रीने हा व्हिडिओ मार्गदर्शिका डिलीट करू इच्छिता?")) return;
+      if (!dbActiveInstance) return;
+
+      dbActiveInstance.ref(`youtube_tutorials/${key}`).remove()
+        .then(() => showToast("व्हिडिओ डिलीट केला."))
+        .catch(err => showToast("त्रुटी: " + err.message, true));
+    }
+
+
+    /* --- POLL MANAGEMENT --- */
+    function addPollOptionField() {
+      const container = document.getElementById('pollOptionsContainer');
+      const count = container.children.length - 1; // Subtract the label
+      
+      if (count >= 5) {
+        showToast("तुम्ही जास्तीत जास्त ५ पर्याय जोडू शकता.", true);
+        return;
+      }
+
+      const row = document.createElement('div');
+      row.className = 'option-row';
+      row.innerHTML = `
+        <input type="text" class="form-control poll-option-input" placeholder="${count + 1} ला पर्याय" required>
+        <button type="button" class="btn-remove-option" onclick="this.parentElement.remove()">
+          <i class="fa-solid fa-circle-minus"></i>
+        </button>
+      `;
+      container.appendChild(row);
+    }
+
+    function listenToPolls() {
+      if (!dbActiveInstance) return;
+      
+      const pollListDiv = document.getElementById('pollList');
+      dbActiveInstance.ref('community_polls').on('value', (snapshot) => {
+        if (!snapshot.exists()) {
+          pollListDiv.innerHTML = '<div class="empty-state"><i class="fa-solid fa-square-poll-vertical"></i><br>सध्या कोणतेही मतदान सक्रिय नाही.</div>';
+          return;
+        }
+
+        const data = snapshot.val();
+        let htmlContent = '';
+        
+        // Sort keys descending (newest first)
+        const sortedKeys = Object.keys(data).sort((a, b) => b.localeCompare(a));
+
+        sortedKeys.forEach((key) => {
+          const poll = data[key];
+          
+          let totalVotes = 0;
+          if (poll.votes) {
+            Object.values(poll.votes).forEach(v => totalVotes += v);
+          }
+
+          let optionsHtml = '';
+          if (poll.options && Array.isArray(poll.options)) {
+            poll.options.forEach((opt) => {
+              const count = (poll.votes && poll.votes[opt]) ? poll.votes[opt] : 0;
+              const percent = totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(0) : 0;
+              
+              optionsHtml += `
+                <div class="poll-option-result">
+                  <div class="poll-option-info">
+                    <span>${opt}</span>
+                    <span style="font-weight: 600;">${percent}% (${count} मते)</span>
+                  </div>
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+                  </div>
+                </div>
+              `;
+            });
+          }
+
+          htmlContent += `
+            <div class="poll-item">
+              <div class="poll-item-header">
+                <span class="poll-id">मतदान ID: #${key.substring(key.length - 4)}</span>
+                <span class="poll-votes-total">एकूण मते: ${totalVotes}</span>
+              </div>
+              <div class="poll-question">${poll.question}</div>
+              <div class="poll-options-list">
+                ${optionsHtml}
+              </div>
+              <button class="btn-delete" onclick="deletePoll('${key}')" title="मतदान डिलीट करा">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          `;
+        });
+        
+        pollListDiv.innerHTML = htmlContent;
+      }, (error) => {
+        pollListDiv.innerHTML = `<div class="empty-state" style="color: var(--danger-red);"><i class="fa-solid fa-circle-exclamation"></i><br>त्रुटी: ${error.message}</div>`;
+      });
+    }
+
+    function savePoll(event) {
+      event.preventDefault();
+      const question = document.getElementById('pollQuestion').value.trim();
+      const optionInputs = document.querySelectorAll('.poll-option-input');
+      
+      let options = [];
+      optionInputs.forEach((input) => {
+        const val = input.value.trim();
+        if (val.length > 0) options.push(val);
+      });
+
+      if (options.length < 2) {
+        showToast("कृपया किमान २ पर्याय जोडा.", true);
+        return;
+      }
+
+      if (!dbActiveInstance) return;
+
+      const id = Date.now().toString();
+      
+      let initialVotes = {};
+      options.forEach(opt => initialVotes[opt] = 0);
+
+      const pollData = {
+        id: id,
+        question: question,
+        options: options,
+        votes: initialVotes,
+        voted_users: {},
+        creator_id: "admin"
+      };
+
+      dbActiveInstance.ref(`community_polls/${id}`).set(pollData)
+        .then(() => {
+          showToast("नवीन मतदान यशस्वीरित्या प्रसिद्ध केले!");
+          document.getElementById('pollForm').reset();
+          
+          // Reset option fields to just 2 fields
+          const container = document.getElementById('pollOptionsContainer');
+          container.innerHTML = `
+            <label class="form-label">मतदानाचे पर्याय (Options)</label>
+            <div class="option-row">
+              <input type="text" class="form-control poll-option-input" placeholder="१ ला पर्याय" required>
+              <div style="width: 44px;"></div>
+            </div>
+            <div class="option-row">
+              <input type="text" class="form-control poll-option-input" placeholder="२ रा पर्याय" required>
+              <div style="width: 44px;"></div>
+            </div>
+          `;
+        })
+        .catch((err) => {
+          showToast("त्रुटी: " + err.message, true);
+        });
+    }
+
+    function deletePoll(key) {
+      if (!confirm("आपण खात्रीने हे मतदान डिलीट करू इच्छिता?")) return;
+      if (!dbActiveInstance) return;
+
+      dbActiveInstance.ref(`community_polls/${key}`).remove()
+        .then(() => showToast("मतदान डिलीट केले."))
+        .catch(err => showToast("त्रुटी: " + err.message, true));
+    }
+
+    /* --- DISEASE MANAGEMENT --- */
+    function listenToDiseases() {
+      if (!dbActiveInstance) return;
+      
+      const diseaseListDiv = document.getElementById('diseaseList');
+      dbActiveInstance.ref('diseases').on('value', (snapshot) => {
+        if (!snapshot.exists()) {
+          diseaseListDiv.innerHTML = '<div class="empty-state"><i class="fa-solid fa-bug-slash"></i><br>अद्याप कोणतेही रोग सल्ला रेकॉर्ड जोडलेले नाही.</div>';
+          return;
+        }
+
+        const data = snapshot.val();
+        let htmlContent = '';
+        
+        Object.keys(data).forEach((key) => {
+          const disease = data[key];
+          
+          htmlContent += `
+            <div class="video-item" style="align-items: center; display: flex; margin-bottom: 12px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+              <img class="video-thumbnail" src="${disease.photoUrl || 'https://via.placeholder.com/150'}" alt="Photo" style="object-fit: cover; width: 64px; height: 64px; border-radius: 8px;">
+              <div class="video-details" style="margin-left: 16px; flex-grow: 1;">
+                <div class="video-item-title" style="font-weight: bold; color: white;">${disease.name}</div>
+                <div class="video-item-desc" style="font-size: 13px; color: var(--text-muted);"><strong>पीक:</strong> ${disease.crop}</div>
+                <div class="video-item-desc" style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><strong>लक्षणे:</strong> ${disease.symptoms.substring(0, 80)}...</div>
+              </div>
+              <button class="btn-delete" onclick="deleteDisease('${key}')" title="रोग डिलीट करा" style="background: none; border: none; color: var(--danger-red); cursor: pointer; padding: 8px;">
+                <i class="fa-solid fa-trash-can" style="font-size: 16px;"></i>
+              </button>
+            </div>
+          `;
+        });
+        
+        diseaseListDiv.innerHTML = htmlContent;
+      }, (error) => {
+        diseaseListDiv.innerHTML = `<div class="empty-state" style="color: var(--danger-red);"><i class="fa-solid fa-circle-exclamation"></i><br>त्रुटी: ${error.message}</div>`;
+      });
+    }
+
+    function saveDisease(event) {
+      event.preventDefault();
+      const name = document.getElementById('diseaseName').value.trim();
+      const crop = document.getElementById('diseaseCrop').value.trim();
+      const symptoms = document.getElementById('diseaseSymptoms').value.trim();
+      const remedy = document.getElementById('diseaseRemedy').value.trim();
+      const chemicalRemedy = document.getElementById('diseaseChemicalRemedy').value.trim() || 'माहिती उपलब्ध नाही.';
+      const recipe = document.getElementById('diseaseRecipe').value.trim();
+      const quote = document.getElementById('diseaseVedicQuote').value.trim();
+      const photo = document.getElementById('diseasePhotoUrl').value.trim();
+
+      if (!dbActiveInstance) return;
+
+      const key = name.replace(/\s+/g, '_')
+                      .replace(/\(/g, '_')
+                      .replace(/\)/g, '_')
+                      .replace(/\//g, '_');
+
+      const diseaseData = {
+        name: name,
+        crop: crop,
+        symptoms: symptoms,
+        organicRemedy: remedy,
+        chemicalRemedy: chemicalRemedy,
+        recipe: recipe,
+        vedicQuote: quote,
+        photoUrl: photo
+      };
+
+      dbActiveInstance.ref(`diseases/${key}`).set(diseaseData)
+        .then(() => {
+          showToast("रोग यशस्वीरित्या जतन केला!");
+          document.getElementById('diseaseForm').reset();
+        })
+        .catch((err) => {
+          showToast("जतन करताना त्रुटी: " + err.message, true);
+        });
+    }
+
+    function deleteDisease(key) {
+      if (!confirm("आपण खात्रीने हा रोग सल्ला रेकॉर्ड डिलीट करू इच्छिता?")) return;
+      if (!dbActiveInstance) return;
+
+      dbActiveInstance.ref(`diseases/${key}`).remove()
+        .then(() => showToast("रोग सल्ला डिलीट केला."))
+        .catch(err => showToast("त्रुटी: " + err.message, true));
+    }
+
+
+    /* --- TOOLS MANAGEMENT --- */
+    function listenToTools() {
+      if (!dbActiveInstance) return;
+      
+      const toolListDiv = document.getElementById('toolList');
+      dbActiveInstance.ref('tools').on('value', (snapshot) => {
+        if (!snapshot.exists()) {
+          toolListDiv.innerHTML = '<div class="empty-state"><i class="fa-solid fa-screwdriver-wrench"></i><br>अद्याप कोणतेही साधन जोडलेले नाही.</div>';
+          return;
+        }
+
+        const data = snapshot.val();
+        let htmlContent = '';
+        
+        Object.keys(data).forEach((key) => {
+          const tool = data[key];
+          
+          htmlContent += `
+            <div class="video-item" style="align-items: center; display: flex; margin-bottom: 12px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+              <img class="video-thumbnail" src="${tool.photoUrl || 'https://via.placeholder.com/150'}" alt="Photo" style="object-fit: cover; width: 64px; height: 64px; border-radius: 8px;">
+              <div class="video-details" style="margin-left: 16px; flex-grow: 1;">
+                <div class="video-item-title" style="font-weight: bold; color: white;">${tool.name}</div>
+                <div class="video-item-desc" style="font-size: 13px; color: var(--text-muted);"><strong>श्रेणी:</strong> ${tool.category} | <strong>किंमत:</strong> ₹${tool.price}</div>
+                <div class="video-item-desc" style="font-size: 11px; color: var(--text-muted); word-break: break-all; margin-top: 4px;"><strong>खरेदी लिंक:</strong> <a href="${tool.purchaseUrl}" target="_blank" style="color: var(--accent-gold); text-decoration: underline;">${tool.purchaseUrl}</a></div>
+              </div>
+              <button class="btn-delete" onclick="deleteTool('${key}')" title="साधन डिलीट करा" style="background: none; border: none; color: var(--danger-red); cursor: pointer; padding: 8px; margin-left: auto;">
+                <i class="fa-solid fa-trash-can" style="font-size: 16px;"></i>
+              </button>
+            </div>
+          `;
+        });
+        
+        toolListDiv.innerHTML = htmlContent;
+      }, (error) => {
+        toolListDiv.innerHTML = `<div class="empty-state" style="color: var(--danger-red);"><i class="fa-solid fa-circle-exclamation"></i><br>त्रुटी: ${error.message}</div>`;
+      });
+    }
+
+    function saveTool(event) {
+      event.preventDefault();
+      const name = document.getElementById('toolName').value.trim();
+      const priceStr = document.getElementById('toolPrice').value.trim();
+      const price = parseFloat(priceStr) || 0.0;
+      const category = document.getElementById('toolCategory').value.trim();
+      const photo = document.getElementById('toolPhotoUrl').value.trim();
+      const buyLink = document.getElementById('toolPurchaseUrl').value.trim();
+
+      if (!dbActiveInstance) return;
+
+      const id = Date.now().toString();
+
+      const toolData = {
+        name: name,
+        price: price,
+        category: category,
+        photoUrl: photo,
+        purchaseUrl: buyLink || "https://amazon.in"
+      };
+
+      dbActiveInstance.ref(`tools/${id}`).set(toolData)
+        .then(() => {
+          showToast("साधन यशस्वीरित्या जतन केले!");
+          document.getElementById('toolForm').reset();
+        })
+        .catch((err) => {
+          showToast("जतन करताना त्रुटी: " + err.message, true);
+        });
+    }
+
+    function deleteTool(key) {
+      if (!confirm("आपण खात्रीने हे साधन डिलीट करू इच्छिता?")) return;
+      if (!dbActiveInstance) return;
+
+      dbActiveInstance.ref(`tools/${key}`).remove()
+        .then(() => showToast("साधन डिलीट केले."))
+        .catch(err => showToast("त्रुटी: " + err.message, true));
+    }
+
+
+    // App Bootstrapping
+    window.onload = function() {
+      initConfig();
+      initFirebase();
+    };
+  </script>
+</body>
+</html>
