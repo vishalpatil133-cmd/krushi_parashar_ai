@@ -51,6 +51,8 @@ dependencies:
   startapp_sdk: ^1.0.1
   firebase_storage: ^12.4.10
   flutter_image_compress: ^2.4.0
+  speech_to_text: ^6.6.2
+
 
 dev_dependencies:
   flutter_test:

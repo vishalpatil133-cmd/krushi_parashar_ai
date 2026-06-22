@@ -17,6 +17,8 @@ import 'market_prices_screen.dart';
 import 'general_chat_screen.dart';
 import 'farm_calculator_screen.dart';
 import 'crop_health_check_screen.dart';
+import 'voice_assistant_screen.dart';
+
 import '../main.dart';
 import 'community_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -94,9 +96,12 @@ class _HomeDashboardState extends State<HomeDashboard> {
           );
         }
       },
-    );
+    ).then((_) {
+      NotificationService.instance.generateDailyVedicNotification();
+    });
     NotificationService.instance.listenToUserNotifications(widget.userId);
   }
+
 
   Future<void> _loadProfile() async {
     setState(() => _isLoadingProfile = true);
@@ -1930,6 +1935,77 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 ),
               ),
               const SizedBox(height: 12),
+              
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: accentGold.withOpacity(0.25), width: 1.5),
+                ),
+                color: Colors.white,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VoiceAssistantScreen(userId: widget.userId),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: accentGold.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.keyboard_voice_outlined,
+                            color: accentGold,
+                            size: 26,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'एआय बोलणारा मित्र (Voice Assistant)',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryGreen,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'तुमचे प्रश्न थेट बोलून विचारण्यासाठी आणि ऐकण्यासाठी',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: primaryGreen,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
               
               Card(
                 elevation: 0,

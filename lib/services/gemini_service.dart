@@ -265,6 +265,27 @@ class GeminiService {
     }
   }
 
+  Future<String> askVoiceAssistant(String question) async {
+    final apiKey = _generalApiKey;
+    const systemInstruction = "तुम्ही 'कृषी पराशर एआय व्हॉइस असिस्टंट' आहात - प्राचीन भारतीय वैदिक शेती आणि ऋषी पराशर यांच्या ज्ञानाचे मार्गदर्शक. "
+        "शेतकऱ्यांनी विचारलेल्या प्रश्नांना अत्यंत आदरपूर्वक, शुद्ध आणि सोप्या मराठी देवनागरी भाषेत उत्तरे द्या. "
+        "नेहमी सेंद्रिय शेती, शुभ नक्षत्र मुहूर्त, पारंपरिक पद्धती आणि घरगुती सेंद्रिय उपायांना प्राधान्य द्या. "
+        "उत्तरे अत्यंत संक्षिप्त (फक्त १ ते २ ओळीत आणि जास्तीत जास्त २५ शब्दांत) असावीत जेणेकरून ती शेतकऱ्याला आवाज ऐकताना समजणे सोपे जाईल.";
+
+    try {
+      final result = await _generateWithFallback(
+        apiKey: apiKey,
+        prompt: question,
+        systemInstruction: systemInstruction,
+      );
+      return result ?? 'काहीतरी चूक झाली, कृपया पुन्हा बोलून प्रयत्न करा.';
+    } catch (e) {
+      print('Voice Assistant all fallbacks failed: $e');
+      return 'अडचण आली. कृपया तुमचे इंटरनेट तपासा आणि पुन्हा विचारा.';
+    }
+  }
+
+
   Future<Map<String, String>> diagnoseCropDisease(String cropType, List<int> imageBytes) async {
     final apiKey = _diseaseApiKey;
     
